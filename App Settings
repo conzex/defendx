@@ -1,0 +1,99 @@
+# Wazuh Dashboard Setup & Configuration Guide
+
+## Table of Contents
+- [System Preparation](#system-preparation)
+- [Setting Hostname](#setting-hostname)
+- [Configuring Wazuh Dashboard Permissions](#configuring-wazuh-dashboard-permissions)
+- [Managing Custom Logo for Wazuh Dashboard](#managing-custom-logo-for-wazuh-dashboard)
+- [Configuring Wazuh Configuration File](#configuring-wazuh-configuration-file)
+- [Restarting Wazuh Services](#restarting-wazuh-services)
+- [Troubleshooting Commands](#troubleshooting-commands)
+
+---
+
+## System Preparation
+### Update System Packages (Recommended)
+```bash
+sudo yum update -y
+```
+
+### Disable IPv6
+```bash
+sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sudo sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+```
+
+---
+
+## Setting Hostname
+```bash
+sudo hostnamectl set-hostname DefendX
+```
+
+---
+
+## Configuring Wazuh Dashboard Permissions
+### Change Ownership & Permissions for Wazuh Dashboard
+```bash
+sudo chown -R wazuh-user:wazuh-user /usr/share/wazuh-dashboard
+sudo chmod -R 775 /usr/share/wazuh-dashboard
+```
+
+### Allow Binding to Privileged Ports (Security Capability Settings)
+```bash
+sudo setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-dashboard/bin/opensearch-dashboards
+sudo setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-dashboard/node/fallback/bin/node
+```
+
+---
+
+## Managing Custom Logo for Wazuh Dashboard
+### Ensure the Directory Exists
+```bash
+sudo mkdir -p /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images
+```
+
+### Set Proper Ownership & Permissions
+```bash
+sudo chown -R wazuh:wazuh /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images
+sudo chmod -R 755 /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images
+```
+
+### Creating a Custom Logo File (If Missing)
+```bash
+sudo touch /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images/customization.logo.app.svg
+sudo chown wazuh-dashboard:wazuh-dashboard /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images/customization.logo.app.svg
+sudo chmod 664 /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images/customization.logo.app.svg
+```
+
+---
+
+## Configuring Wazuh Configuration File
+```bash
+sudo chown wazuh-dashboard:wazuh-dashboard /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+sudo chmod 644 /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+```
+
+---
+
+## Restarting Wazuh Services
+### Restart & Check Wazuh Manager
+```bash
+sudo systemctl restart wazuh-manager
+sudo systemctl status wazuh-manager
+```
+
+### Restart & Check Wazuh Dashboard
+```bash
+sudo systemctl restart wazuh-dashboard
+sudo systemctl status wazuh-dashboard
+```
+
+---
+
+## Troubleshooting Commands
+### Check if Custom Logo File Exists
+```bash
+ls -l /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images/
+find /usr/share/wazuh-dashboard -type f -name "customization.logo.app.svg"
